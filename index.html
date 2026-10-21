@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Batoid Parameter Atlas</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">
+    { "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    } }
+  </script>
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Batoid Parameter Atlas <small>가오리 신체적 특징 파라미터 41개 · 3D 위치와 범위</small></h1>
+    <div class="seg" role="group" aria-label="모델">
+      <button data-model="manta">만타</button>
+      <button data-model="standard">표준 가오리</button>
+    </div>
+    <a class="pdf" href="parameter_zip.pdf" target="_blank" rel="noopener">원문 PDF</a>
+  </header>
+  <main>
+    <aside id="list" aria-label="파라미터 목록">
+      <input id="q" type="search" placeholder="파라미터 검색 (예: 코드, AR, radial)">
+      <div id="groups"></div>
+    </aside>
+    <section id="viewer">
+      <div id="canvas"></div>
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="시점">
+          <button data-view="top">위</button><button data-view="bottom">아래</button><button data-view="side">옆</button><button data-view="front">앞</button><button data-view="iso">3D</button>
+        </div>
+        <div class="seg">
+          <button id="skel">골격</button><button id="lbl" class="on">라벨</button>
+        </div>
+      </div>
+      <div id="note" hidden></div>
+      <div id="toast" hidden></div>
+      <p id="caption"></p>
+      <p class="hint">드래그 회전 · 휠 확대 · 우클릭 이동</p>
+    </section>
+    <aside id="detail" aria-live="polite"></aside>
+  </main>
+</body>
+</html>
