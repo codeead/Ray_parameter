@@ -17,6 +17,14 @@ export const REFS = {
   'Macesic & Kajiura 2010': 'Comparative punting kinematics and pelvic fin musculature of benthic batoids. J. Morphol. 271, 1219–1228.',
   'Macesic & Summers 2012': 'Flexural stiffness and composition of the batoid propterygium as predictors of punting ability. J. Exp. Biol. 215, 2003–2012.',
   'Chaumel 2025': 'Chaumel, White & Lauder. Function of the tail in myliobatid rays: role in controlling body stability. R. Soc. Open Sci. 12, 251269.',
+  'Smits et al.': 'Smits, Moored & Dewey. The swimming of manta rays. Princeton University. (출판연도·게재처 표기 없음)',
+  'Menzer 2022': 'Menzer, Gong, Fish & Dong. Bio-inspired propulsion: towards understanding the role of pectoral fin kinematics in manta-like swimming. Biomimetics 7, 45.',
+  'Zhang 2022': 'Zhang et al. Vortex dynamics and hydrodynamic performance enhancement mechanism in batoid fish oscillatory swimming. J. Fluid Mech. (초록)',
+  'Parson 2011': 'Parson, Fish & Nicastro. Turning performance of batoid rays: limitations of a rigid body. SICB 초록 (논문: J. Exp. Mar. Biol. Ecol. 402, 2011).',
+  'Moored SICB': 'Moored et al. Analytical model to describe pectoral fin kinematics of the Manta birostris. SICB 초록.',
+  'Wang 2024': 'Wang et al. Hydrodynamic characterization of manta rays in bowed gliding state. Ocean Eng. 294, 116799. (초록)',
+  'Xu 2025': 'Xu et al. Hydrodynamic study of manta rays using curved pectoral fins for efficient and highly maneuverable gliding. ISOPE 2025. (초록)',
+  'Zhu 2025': 'Zhu et al. Wavenumber affects the lift of ray-inspired fins near a substrate. arXiv (프리프린트).',
   // 사이트 조정안에서 새로 쓴 문헌 (parameter_zip.pdf 출처 목록에는 없음)
   'Francis 2006': 'Morphometric minefields—towards a measurement standard for chondrichthyan fishes. Environ. Biol. Fish. 77, 407–421. 길이 정의·측정 원칙의 근거.',
   'Deakos 2010': 'Paired-laser photogrammetry as a simple and accurate system for measuring the body size of free-ranging manta rays. Aquat. Biol. 10, 1–10. 만타 DW·DL 측정 정밀도.',
@@ -29,6 +37,42 @@ export const REFS = {
 
 // verdict.level = 판단 확신도, ★ 표시는 논문에 적힌 내용이 아니라 조정안 작성자의 계산·추론
 export const CONFLICTS = {
+  '#1': { title: '진동형·파동형을 가르는 파수 경계', items: [
+    'Rosenberger 2001: 진동형 0.5파 미만, 중간형 0.5~1, 파동형 1 초과. Schaefer & Summers 2005, Moored 2011a, Fontanella 2013, Di Santo 2017이 같은 기준을 씁니다.',
+    'Blevins & Lauder 2012: “undulators have more than one wave, oscillators less than one”. 중간형 없이 1을 경계로 씁니다.',
+    'Martinez 2016: 파수 1을 방식 경계로 써왔다고 쓰면서 Rosenberger 2001을 인용합니다. 인용한 원문과 기준이 다릅니다.',
+    'Menzer 2022: Zhang 등의 연구를 인용해 소가오리 진동형을 파수 0.0~0.8로 기술합니다.',
+    'Smits et al.: 저서성 λ/L < 1, 외양성 λ/L > 2. 역수로 보면 Rosenberger의 경계(1, 0.5)와 같습니다.',
+    '영향: 파수 0.5~1인 종은 기준에 따라 중간형이 되기도, 진동형이 되기도 합니다.',
+  ] },
+  '#3': { title: '스트루하레 수와 힘 계수의 기준값', items: [
+    'St = fL/U, L = DL: Blevins & Lauder 2012 (St 0.2).',
+    'St = fA/U, A = 최대 파동 진폭(약 0.2L): Bottom 2016 (St 0.34, 0.27). 두 논문은 같은 종(P. orbignyi), 같은 속도(1.5·2.5 L/s), 같은 DL(12.8 cm)을 다루는데 St가 다릅니다.',
+    'A = 피크-투-피크 끝 진폭: Fish 2016, Menzer 2022. Smits et al.은 반스팬 뒷전의 피크-투-피크 진폭.',
+    'St = fa / 2U, a = 스팬 평균 진폭: Zhu 2025 (프리프린트).',
+    'Fish 2016 내부: 효율이 높은 St 범위를 초록은 0.2~0.4, 본문은 0.25~0.4로 씁니다.',
+    '힘 계수 정규화: ½ρU²S (S = 평면 면적; Smits et al., Moored 2011b), ½ρU²BL (Menzer 2022, 원문 표기 그대로), ρU²L² (Bottom 2016, ½ 없음). 값을 서로 직접 비교할 수 없습니다.',
+  ] },
+  '#6': { title: '진폭 정의', items: [
+    '최대 상승·하강 변위의 평균, DW로 정규화: Rosenberger & Westneat 1999.',
+    '체반 최대폭 부분의 등배 변위 절반, DW 비: Rosenberger 2001.',
+    '각 점 총 등배 변위의 절반(절대값): Blevins & Lauder 2012, Di Santo 2017.',
+    '지느러미 끝 최대 수직 변위(heave), BL 단위: Fish 2016. St에는 피크-투-피크 끝 진폭을 따로 씁니다.',
+    '최대 파동 진폭 ≈ 0.2L: Bottom 2016.',
+    '영향: 절반 진폭과 피크-투-피크는 2배 차이가 나고, DW·BL·절대값 중 무엇으로 정규화했는지도 다릅니다.',
+  ] },
+  '#8': { title: '속도를 높일 때 바뀌는 파라미터', items: [
+    'Rosenberger & Westneat 1999 (Taeniura lymma): 주파수·파속도 증가, 파수 감소. 개체마다 주파수와 진폭을 맞바꿈.',
+    'Blevins & Lauder 2012 (P. orbignyi): 주파수만 증가, 진폭은 그대로.',
+    'Rosenberger 2001: 종마다 다름. Dasyatis는 주파수·파속도, Raja eglanteria는 파수 감소·파속도 증가, Rhinoptera bonasus는 파속도, Gymnura micrura는 파수 감소.',
+    'Heine 1992 (Rosenberger 2001 인용, 소가오리): 주파수·진폭·받음각은 유지하고 끝 속도를 높임. Rosenberger 2001은 같은 종에서 파속도 증가를 보고하며 Heine 결과를 덧붙여 소개합니다(서로 반박하지는 않음).',
+    'Fish 2016 (만타): 주파수는 속도와 함께 증가, heave 진폭은 유의한 변화 없음.',
+  ] },
+  '#9': { title: '성능 해석이 엇갈린 부분', items: [
+    '효율 수준: Clark & Smits 2006은 코드 방향 진행파가 있는 핀에서 50% 이상을, Moored 2011b의 heaving fin은 20~22%를 얻었습니다. Moored는 진행파 유무로 설명합니다.',
+    '공진과 효율: Moored 2012b는 구조 공진 주파수에서 효율 피크를 제안했지만, Smits et al.은 구조 공진이 효율 피크로 이어지지 않는다며 후류 공진으로 설명을 바꿨습니다.',
+    '스팬 방향 굽힘과 효율: Menzer 2022가 인용한 Wang 등은 작은 굽힘 진폭에서 효율이 최대라고 했고, Menzer는 다른 결과를 얻어 Cai 등(굽힘각이 클수록 효율·추력 증가)과 맞춰 해석했습니다.',
+  ] },
   '#2': { title: '파수의 기준 길이 (형태 카드 부분)', items: [
     'DL / λ: Rosenberger & Westneat 1999.',
     '지느러미 기부 길이 / λ: Rosenberger 2001. 주둥이 연골·두부엽이 있는 종은 DL과 다릅니다.',

@@ -211,6 +211,7 @@ export function buildModel(key) {
       pelvic: V(avg(0), -0.01, avg(1)),
       com: onSurf(V(0, 0, sp.uCom)),
     },
+    body, meta, parts, // 유영 애니메이션에서 정점을 움직이는 데 씀
     finEdge, radials, brace, paths, profile, paint,
     tint: (names, color) => names.flatMap(n => parts[n] ?? []).forEach(p => p.material.color.set(color)),
     reset() { paint(null); mats.forEach(m => m.color.setHex(m.userData.base)); braceObj.visible = key === 'manta'; },

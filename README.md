@@ -2,7 +2,7 @@
 
 Interactive 3D atlas of batoid (ray) morphological parameters.
 
-Explore 41 body-shape parameters
+Explore 41 body-shape parameters and 50 swimming metrics
 — disc width, chord, aspect ratio, thickness, skeleton, muscles, pelvic fins —
 on a manta ray and a generic benthic ray, with definitions, source papers, and cross-paper definition conflicts.
 Built with Three.js; no build step.
@@ -60,9 +60,18 @@ Three.js로 만들었으며 별도의 빌드 과정이 없습니다.
 - 정의 차이가 있는 항목은 **판단**(더 믿을 만한 쪽과 이유)이 함께 나옵니다. ★ 표시는 논문에 적힌 내용이 아니라 작성자의 계산·추론입니다.
 - 상단 **기호표 · 단위**에서 전체 기호 규칙을 볼 수 있습니다. 기준 길이는 DL_pel(주둥이 끝~배지느러미 뒷끝)로 통일했습니다.
 
+### 유영 지표 탭
+상단 **신체 특징 / 유영 지표** 탭에서 전환합니다. `parameter_zip.pdf` 2장(유영 방식별 지표)을 바탕으로 합니다.
+- **왼쪽**: 유영 방식 8가지(2-0)와 지표 50개(2-1~2-6) 모음. `조절` 표시는 슬라이더로 바꿀 수 있는 지표, `계산` 표시는 슬라이더 값에서 계산되는 지표입니다.
+- **방식 선택**: 방식마다 기본값(사이트 예시값)이 들어가고, 맞는 3D 모델로 바뀝니다. 펀팅은 표준 가오리에서만 볼 수 있습니다.
+- **슬라이더**: 속도, 박동 주파수, 진폭, 파수, 비대칭비, 뱅크각 등을 바꾸면 3D 모션이 즉시 바뀝니다. 아래 **계산 지표**(파장, 파 속도, 슬립, 보폭, St, k, Re, 선회율 등)도 함께 갱신됩니다.
+- **재생 제어**: 일시정지, 0.25×·0.5×·1× 속도, 기본값으로 되돌리기. 운영체제에서 "동작 줄이기"를 켜면 멈춘 상태로 시작합니다.
+- **노란 선**: 지느러미 끝(축 기반은 꼬리 끝)이 물에 대해 그리는 궤적입니다. 한 물결의 길이가 보폭(U/f)입니다.
+- **기본값 주의**: PDF에는 종별 수치가 없어 기본값은 3장 수치(St 0.34·1.5 L/s·DL 12.8 cm, W 1.1, St 0.2~0.4)와 분류 경계에서 고른 예시입니다. 근거는 각 방식 패널에 적혀 있습니다. 운동 모델은 시각화용 단순화입니다.
+
 ### 링크 공유
 주소 끝에 파라미터 ID를 붙이면 해당 파라미터가 바로 열립니다.
-예: `https://<아이디>.github.io/Ray_parameter/#ar`
+예: `https://<아이디>.github.io/Ray_parameter/#ar`, 유영 탭은 `#swim/turning/R`(방식/지표)
 
 ### 유의사항
 - 3D 형상과 점 위치(무게중심, 관절 등)는 **시각화용 예시**이며 실측값이 아닙니다.
@@ -80,6 +89,9 @@ js/figs.js          3D로 보기 어려운 구조의 모식도
 js/models.js        만타·표준 가오리 3D 형상과 골격
 js/viz.js           파라미터별 3D 표시
 js/panel.js         목록·설명·기호표 화면 구성
+js/swim-data.js     유영 방식 8개·지표 50개, 슬라이더 정의와 방식별 기본값
+js/swim.js          유영 애니메이션 엔진과 계산 지표
+js/swim-panel.js    유영 지표 탭 화면 구성
 js/main.js          3D 장면과 조작
 parameter_zip.pdf   원문 파라미터 목록
 ```

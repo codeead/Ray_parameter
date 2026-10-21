@@ -21,11 +21,11 @@ export const listHTML = () => GROUPS.map(([g, title]) => {
 
 const row = (k, v) => (v ? `<dt>${k}</dt><dd>${v}</dd>` : '');
 
-const conflictHTML = c => {
+export const conflictHTML = c => {
   const { title, items, verdict: v } = CONFLICTS[c];
   return `<h3>논문 간 정의 차이 ${c} · ${title}</h3><ul class="conf">${items.map(x => `<li>${x}</li>`).join('')}</ul>
-    <div class="verdict"><b>판단 (확신도 ${v.level})</b><p>${v.head}</p><ul>${v.points.map(x => `<li>${x}</li>`).join('')}</ul>
-    <small>★ = 논문에 적힌 내용이 아니라 조정안 작성자의 계산·추론</small></div>`;
+    ${v ? `<div class="verdict"><b>판단 (확신도 ${v.level})</b><p>${v.head}</p><ul>${v.points.map(x => `<li>${x}</li>`).join('')}</ul>
+    <small>★ = 논문에 적힌 내용이 아니라 조정안 작성자의 계산·추론</small></div>` : ''}`;
 };
 
 const evidenceHTML = id => (EV[id] ? `<h3>근거 상세 · 원문 위치와 설명</h3><div class="ev">${EV[id].map(([paper, loc, text]) =>

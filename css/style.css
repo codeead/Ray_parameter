@@ -192,6 +192,38 @@ cite { color: var(--text-3); font-size: var(--fs-sm); font-style: normal; }
 .slider output { float: right; color: var(--measure); font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .slider input { width: 100%; margin: var(--sp-2) 0 0; accent-color: var(--accent); }
 
+/* ── 유영 지표 탭 */
+.mk.calc { background: rgb(143 208 255 / .1); color: var(--basis); }
+#detail .src { margin-top: var(--sp-1); font-size: var(--fs-sm); }
+.playbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin-top: var(--sp-5); }
+.playbar .link { margin-left: auto; }
+.ctrls { display: grid; gap: var(--sp-3); }
+.ctrl-head { display: flex; align-items: baseline; gap: var(--sp-2); font-size: var(--fs-md); }
+.ctrl-head label { color: var(--text); font-weight: 500; }
+.ctrl-head output { margin-left: auto; color: var(--measure); font: 500 var(--fs-md) var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ctrl-head output small, .card-v small { color: var(--text-3); font-size: var(--fs-xs); font-weight: 400; }
+.ctrl input[type=range] { width: 100%; height: 24px; margin: 2px 0 0; accent-color: var(--accent); }
+.mini {
+  all: unset; cursor: pointer; padding: 0 6px; border-radius: 4px; color: var(--text-3); font-size: var(--fs-xs); line-height: 1.7;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+#detail .basis-note { margin-top: var(--sp-3); padding: var(--sp-3); border-radius: var(--r-md); background: rgb(143 208 255 / .06); box-shadow: inset 2px 0 0 var(--basis); font-size: var(--fs-sm); }
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2); }
+.card {
+  all: unset; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: var(--sp-3);
+  border-radius: var(--r-md); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--border);
+  transition: box-shadow var(--t-fast) ease, background-color var(--t-fast) ease;
+}
+.card-k { color: var(--text-3); font-size: var(--fs-xs); }
+.card-v { color: var(--text); font: 600 var(--fs-lg)/1.3 var(--mono); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.card-f { color: var(--text-3); font-size: var(--fs-xs); line-height: 1.4; }
+#detail .cards + .dim { margin-top: var(--sp-3); font-size: var(--fs-sm); }
+.metric { margin-top: var(--sp-6); padding: var(--sp-4); border-radius: var(--r-lg); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--border-strong); scroll-margin-top: var(--sp-4); }
+.metric:focus { outline: none; }
+#detail .metric .mh { margin: var(--sp-1) 0 0; padding: 0; border: 0; color: var(--text); font-size: var(--fs-lg); letter-spacing: -.01em; }
+#detail .metric .site { margin-top: var(--sp-2); color: var(--basis); }
+#detail .metric .why .mini { margin: 2px; color: var(--accent); }
+
 /* ── 모식도 */
 .fig { display: block; width: 100%; height: auto; margin-top: var(--sp-4); border-radius: var(--r-md); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--border); }
 .fig .ln { fill: none; stroke: var(--text); stroke-width: 1.5; }
@@ -233,8 +265,8 @@ dialog th { position: sticky; top: calc(-1 * var(--sp-6)); background: var(--sur
 dialog td.s { font-family: var(--mono); color: var(--measure); white-space: nowrap; }
 
 /* 눌림 피드백: 작은 컨트롤에만 (목록 행은 자주 쓰므로 색만 바뀜) */
-.seg button, .link, #note button, dialog .close { transition: transform var(--t-base) var(--ease-out), background-color var(--t-fast) ease, color var(--t-fast) ease; }
-.seg button:active, .link:active, #note button:active, dialog .close:active { transform: scale(.96); }
+.seg button, .link, .mini, #note button, dialog .close { transition: transform var(--t-base) var(--ease-out), background-color var(--t-fast) ease, color var(--t-fast) ease; }
+.seg button:active, .link:active, .mini:active, #note button:active, dialog .close:active { transform: scale(.96); }
 
 /* 포커스 링: all: unset을 쓴 컨트롤에도 보이도록 맨 뒤에 둠 */
 :focus-visible { outline: 2px solid var(--accent) !important; outline-offset: 2px; }
@@ -246,12 +278,14 @@ dialog td.s { font-family: var(--mono); color: var(--measure); white-space: nowr
   .seg button:not(.on):hover { color: var(--text); background: rgb(255 255 255 / .05); }
   .item:not(.on):hover { background: rgb(255 255 255 / .035); }
   summary:hover { background: rgb(255 255 255 / .035); }
+  .mini:hover { color: var(--text); box-shadow: inset 0 0 0 1px var(--border-strong); }
+  .card:hover { background: var(--surface-3); box-shadow: inset 0 0 0 1px var(--border-strong); }
   dialog .close:hover, #note button:hover { filter: brightness(1.1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after, dialog, dialog::backdrop { transition-duration: 0ms !important; animation-duration: 0ms !important; }
-  .seg button:active, .link:active, #note button:active, dialog .close:active { transform: none; }
+  .seg button:active, .link:active, .mini:active, #note button:active, dialog .close:active { transform: none; }
 }
 
 @media (max-width: 960px) {
@@ -265,6 +299,7 @@ dialog td.s { font-family: var(--mono); color: var(--measure); white-space: nowr
   #list { order: 3; border: 0; border-top: 1px solid var(--border); }
   .search { position: static; }
   .hint { display: none; }
+  .tabs { order: -1; }
   #q { font-size: var(--fs-lg); }
   dialog { padding: var(--sp-5) var(--sp-4) var(--sp-6); }
 }
