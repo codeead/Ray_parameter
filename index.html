@@ -20,6 +20,7 @@
       <button data-model="manta">만타</button>
       <button data-model="standard">표준 가오리</button>
     </div>
+    <button id="sym" class="pdf">기호표 · 단위</button>
     <a class="pdf" href="parameter_zip.pdf" target="_blank" rel="noopener">원문 PDF</a>
   </header>
   <main>
@@ -44,5 +45,9 @@
     </section>
     <aside id="detail" aria-live="polite"></aside>
   </main>
+  <dialog id="symbols">
+    <form method="dialog"><button class="close" aria-label="닫기">닫기 ✕</button></form>
+    <div id="symbols-body"></div>
+  </dialog>
 </body>
 </html>

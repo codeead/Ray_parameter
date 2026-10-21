@@ -106,14 +106,14 @@ function section(t, m, s, keys) { // keys: C 코드, T 두께, S 최대 두께 �
   t.tube([...P.top, ...P.bot.slice(0, -1).reverse()], COL.c, R * 0.5);
   const le = P.top[0], te = P.top.at(-1), zT = P.le + P.cT * P.C, h = P.T / 2, o = -P.T * 1.3;
   const toT = () => { const a = up(le, o), b = V(s, o, zT); t.tube([a, b], COL.c, R * 0.6); return a.lerp(b, 0.5); };
-  if (keys.includes('C')) { t.tube([le, te], COL.a, R * 0.7); t.label(up(le.clone().lerp(te, 0.75), P.T * 0.2), 'C', COL.a); }
-  if (keys.includes('T')) { t.tube([V(s, F.top * h, zT), V(s, F.bot * h, zT)], COL.b, R); t.label(V(s, F.top * h, zT), 'T', COL.b); }
-  if (keys.includes('S')) t.label(toT(), 'SR', COL.c);
+  if (keys.includes('C')) { t.tube([le, te], COL.a, R * 0.7); t.label(up(le.clone().lerp(te, 0.75), P.T * 0.2), 'c', COL.a); }
+  if (keys.includes('T')) { t.tube([V(s, F.top * h, zT), V(s, F.bot * h, zT)], COL.b, R); t.label(V(s, F.top * h, zT), 't', COL.b); }
+  if (keys.includes('S')) t.label(toT(), 'x_t', COL.c);
   if (keys.includes('M')) {
     t.tube(P.mid, COL.b, R * 0.6);
     t.tube([V(s, 0, zT), V(s, F.mid * h, zT)], COL.c, R);
-    t.label(V(s, F.mid * h, zT), 'MC', COL.b);
-    t.label(toT(), 'PMC', COL.c);
+    t.label(V(s, F.mid * h, zT), 'z_c', COL.b);
+    t.label(toT(), 'x_c', COL.c);
   }
 }
 
@@ -126,12 +126,12 @@ export function sectionSVG(m, s, id) {
   const on = { tmax: 'T', tr: 'TC', sp: 'TCS', camber: 'CM' }[id];
   return `<svg viewBox="0 0 340 130" class="fig">
     <polygon points="${pl(P.top)} ${pl(P.bot.slice().reverse())}" class="ln fs"/>
-    ${on.includes('C') ? `<line x1="${x0}" y1="${y0}" x2="${x0 + W}" y2="${y0}" class="ln2"/><text x="${x0 + W - 4}" y="${y0 - 5}" class="tx r">C</text>` : ''}
-    ${on.includes('T') ? `<line x1="${xT}" y1="${Y((1 + k) * h)}" x2="${xT}" y2="${Y(-(1 - k) * h)}" class="lb"/><text x="${+xT + 6}" y="${+Y((1 + k) * h) - 4}" class="tx l">T</text>` : ''}
-    ${on.includes('S') ? `<line x1="${x0}" y1="108" x2="${xT}" y2="108" class="lc"/><text x="${(x0 + +xT) / 2}" y="122" class="tx">SR</text>` : ''}
-    ${on.includes('M') ? `<polyline points="${pl(P.mid)}" class="lb"/><line x1="${xT}" y1="${y0}" x2="${xT}" y2="${Y(k * h)}" class="lc"/><text x="${+xT + 6}" y="${+Y(k * h) - 4}" class="tx l">MC</text><line x1="${x0}" y1="108" x2="${xT}" y2="108" class="lc"/><text x="${(x0 + +xT) / 2}" y="122" class="tx">PMC</text>` : ''}
+    ${on.includes('C') ? `<line x1="${x0}" y1="${y0}" x2="${x0 + W}" y2="${y0}" class="ln2"/><text x="${x0 + W - 4}" y="${y0 - 5}" class="tx r">c</text>` : ''}
+    ${on.includes('T') ? `<line x1="${xT}" y1="${Y((1 + k) * h)}" x2="${xT}" y2="${Y(-(1 - k) * h)}" class="lb"/><text x="${+xT + 6}" y="${+Y((1 + k) * h) - 4}" class="tx l">t</text>` : ''}
+    ${on.includes('S') ? `<line x1="${x0}" y1="108" x2="${xT}" y2="108" class="lc"/><text x="${(x0 + +xT) / 2}" y="122" class="tx">x_t</text>` : ''}
+    ${on.includes('M') ? `<polyline points="${pl(P.mid)}" class="lb"/><line x1="${xT}" y1="${y0}" x2="${xT}" y2="${Y(k * h)}" class="lc"/><text x="${+xT + 6}" y="${+Y(k * h) - 4}" class="tx l">z_c</text><line x1="${x0}" y1="108" x2="${xT}" y2="108" class="lc"/><text x="${(x0 + +xT) / 2}" y="122" class="tx">x_c</text>` : ''}
   </svg>
-  <p class="figcap">이 모델 단면: TR ${(P.T / P.C).toFixed(3)} · SP ${P.cT.toFixed(2)} · MC/C ${(k * h / P.C).toFixed(3)} — 두께 3배 과장, 예시 형상이라 실측값이 아닙니다.</p>`;
+  <p class="figcap">이 모델 단면(y/b = ${s.toFixed(2)}): t/c ${(P.T / P.C).toFixed(3)} · x_t/c ${P.cT.toFixed(2)} · z_c/c ${(k * h / P.C).toFixed(3)} — 두께 3배 과장, 예시 형상이라 실측값이 아닙니다.</p>`;
 }
 
 const DIR_TOP = [0, 1, 1e-4], DIR_BOTTOM = [0, -1, -1e-4];
@@ -151,40 +151,42 @@ export const DRAW = {
     t.label(m.lm.tipR, '100%', COL.c);
   } },
   dl: { view: 'top', draw(t, m, v) {
-    const { snout, discPost, tailBase } = m.lm, end = v ? tailBase : discPost;
-    t.dim(snout, end, 'DL · 체반 길이');
+    const { snout, pelvicPost, discPost, tailBase } = m.lm;
+    const [end, name, sym] = [[pelvicPost, '배지느러미 뒷끝', 'DL_pel'], [discPost, '가슴지느러미 뒷끝(체반 뒷가장자리)', 'DL_pec'], [tailBase, '꼬리 기부', 'DL_tb']][v];
+    t.dim(snout, end, sym);
     t.pin(snout, '주둥이 끝');
-    t.pin(end, v ? '꼬리 기부' : '체반 뒷가장자리');
+    t.pin(end, name);
   } },
   bl: { view: 'top', draw(t, m, v) {
     const L = m.lm;
-    const [a, b, na, nb] = [
-      [V(0, 0, L.eyeR.z), L.tailBase, null, '꼬리 기부'],
-      [L.snout, L.pelvicPost, '주둥이 끝', '배지느러미 뒷가장자리'],
-      [L.snout, L.tailBase, '주둥이 끝', '꼬리 기부'],
-      [L.snout, L.discPost, '주둥이 끝', '체반 뒷가장자리'],
+    const [a, b, na, nb, sym] = [
+      [L.snout, L.pelvicPost, '주둥이 끝', '배지느러미 뒷끝', 'L = DL_pel'],
+      [L.snout, L.tailBase, '주둥이 끝', '꼬리 기부', 'DL_tb'],
+      [L.snout, L.discPost, '주둥이 끝', '가슴지느러미 뒷끝', 'DL_pec'],
+      [V(0, 0, L.eyeR.z), L.tailBase, null, '꼬리 기부', 'L_eye'],
+      [L.snout, L.discPost, '주둥이 끝', '뒷 기준점 미기재', 'DL (?)'],
     ][v];
     if (!na) { t.tube([L.eyeL, L.eyeR], COL.c, t.R * 0.5); t.pin(L.eyeR, '눈'); } else t.pin(a, na);
-    t.dim(a, b, 'BL · 몸길이');
+    t.dim(a, b, sym);
     t.pin(b, nb);
   } },
   finbase: { view: 'top', draw(t, m) {
     const L = m.lm;
     t.tube(topLine(m, m.sp.sb, L.finO.z, L.finI.z), COL.b);
-    t.dim(L.finO, L.finI, '지느러미 기부', COL.b, m.lift, 0.7);
-    t.dim(L.snout, L.discPost, 'DL (비교)', COL.a, m.lift * 1.6, 0.3);
+    t.dim(L.finO, L.finI, 'ℓ_fb · 지느러미 기부', COL.b, m.lift, 0.7);
+    t.dim(L.snout, L.pelvicPost, 'DL_pel (비교)', COL.a, m.lift * 1.6, 0.3);
   } },
   dp: { view: 'top', draw(t, m) {
     const e = m.finEdge.map(p => up(p, 0.004)), c = poly(e);
     t.tube(e, COL.a, t.R * 1.2);
     [0.15, 0.32, 0.5, 0.68, 0.85].forEach(u => t.cone(c.getPointAt(u), c.getTangentAt(u)));
-    t.label(m.lm.tipR, 'DP · 체반 둘레');
+    t.label(m.lm.tipR, 'P_d · 체반 둘레');
   } },
   chord: { view: 'top', draw(t, m, v) {
     const { fn, lm } = m;
-    if (v === 0) t.dim(lm.rootLE, lm.finI, 'c · 루트 코드');
-    if (v === 1) [0.25, 0.5, 0.75].forEach(s => { const l = topLine(m, s, fn.L(s), fn.te(s)); t.tube(l, COL.a); t.label(l[10], `C (${s * 100}%)`); });
-    if (v === 2) t.dim(lm.finO, lm.finI, 'c = 지느러미 기부 길이');
+    if (v === 0) t.dim(lm.rootLE, lm.finI, 'c_r · 루트 코드');
+    if (v === 1) [0.25, 0.5, 0.75].forEach(s => { const l = topLine(m, s, fn.L(s), fn.te(s)); t.tube(l, COL.a); t.label(l[10], `c(y) (${s * 100}%)`); });
+    if (v === 2) t.dim(lm.finO, lm.finI, 'c_r = 지느러미 기부 길이');
     if (v === 3) {
       const r = midRadial(m), [a, b] = maxPerpChord(m);
       t.tube(r.pts, COL.c, t.R * 0.6); t.label(r.pts[16], '중앙 지느러미살', COL.c);
@@ -192,23 +194,22 @@ export const DRAW = {
     }
   } },
   area: { view: 'top', draw(t, m, v) {
-    if (!v) { m.paint(() => HL); t.label(finMid(m, 0.5), 'A · 투영 면적', COL.c); return; }
-    const k = kite(m);
-    t.mesh([k[0], k[1], k[2], k[0], k[2], k[3]], COL.a, 0.2);
-    t.tube([...k, k[0]], COL.a);
-    t.label(k[1].clone().lerp(k[3], 0.5), 'A ≈ DW × c / 2');
+    if (v === 0) { m.paint(() => HL); t.label(finMid(m, 0.5), 'S · 투영 면적', COL.c); }
+    if (v === 1) { m.paint(x => (x.s > m.sp.sb ? HL : null)); t.label(finMid(m, 0.5), 'S_fin · 한쪽 지느러미', COL.c); }
+    if (v === 2) {
+      const k = kite(m);
+      t.mesh([k[0], k[1], k[2], k[0], k[2], k[3]], COL.a, 0.2);
+      t.tube([...k, k[0]], COL.a);
+      t.label(k[1].clone().lerp(k[3], 0.5), 'S ≈ DW × c_r / 2');
+    }
   } },
   ar: { view: 'top', draw(t, m, v) {
     const L = m.lm;
-    if (v !== 2) t.dim(L.tipL, L.tipR, v === 3 ? 'DW' : 'S · 스팬');
-    if (v === 0) t.dim(L.rootLE, L.finI, 'c · 코드', COL.b);
-    if (v === 1) { m.paint(() => HL); t.label(finMid(m, 0.5), 'A · 평면 면적', COL.c); }
-    if (v === 2) {
-      m.paint(x => (x.s > m.sp.sb ? HL : null));
-      t.dim(L.rootLE, L.finI, '최대 코드 폭', COL.b, m.lift * 0.6);
-      t.label(finMid(m, 0.55), '지느러미 면적 (한쪽)', COL.c);
-    }
-    if (v === 3) { t.dim(L.finO, L.finI, 'c', COL.b); const k = kite(m); t.tube([...k, k[0]], COL.c, t.R * 0.7); }
+    t.dim(v === 2 ? V(0, 0, L.tipR.z) : L.tipL, L.tipR, v === 2 ? 'b · 반스팬' : 'DW');
+    if (v === 0) { m.paint(() => HL); t.label(finMid(m, 0.5), 'S · 평면 면적', COL.c); }
+    if (v === 1) { t.dim(L.finO, L.finI, 'c_r', COL.b); const k = kite(m); t.tube([...k, k[0]], COL.c, t.R * 0.7); }
+    if (v === 2) { m.paint(x => (x.s > m.sp.sb ? HL : null)); t.label(finMid(m, 0.55), 'S_fin · 한쪽 지느러미', COL.c); }
+    if (v === 3) t.dim(L.rootLE, L.finI, 'c_r · 코드', COL.b);
   } },
   shape: { view: 'top', draw(t, m) {
     const pts = poly(m.finEdge).getSpacedPoints(34);
@@ -222,7 +223,7 @@ export const DRAW = {
     t.tube([a, b], COL.a); t.tube([a, V(1.05, 0, a.z)], COL.c, t.R * 0.6);
     const arc = [...Array(17)].map((_, i) => V(a.x + 0.35 * Math.cos(ang * i / 16), 0, a.z + 0.35 * Math.sin(ang * i / 16)));
     t.tube(arc, COL.b, t.R * 0.7);
-    t.label(arc[8], 'Λ 후퇴각 (정성적)', COL.b);
+    t.label(arc[8], 'Λ_LE 후퇴각 (사이트 제안 정의)', COL.b);
   } },
 
   tmax: { mode: SEC, view: secView, draw: (t, m, v, s) => section(t, m, s, 'T') },
@@ -232,28 +233,29 @@ export const DRAW = {
 
   mass: { view: 'iso', draw: (t, m) => whole(t, m, 'M · 몸 전체') },
   mred: { view: 'iso', draw(t, m) {
-    whole(t, m, 'm · 몸 전체');
+    whole(t, m, 'M · 몸 전체');
     const L = m.lm.discPost.z;
     t.box(V(0, 0, L / 2), L, COL.a);
-    t.label(V(L / 2, L / 2, 0), 'ρL³ (L = DL로 예시)');
+    t.label(V(L / 2, L / 2, 0), 'ρ_w L³ (L = DL_pec로 예시)');
   } },
   density: { view: 'side', draw(t, m) {
     whole(t, m, '몸 전체');
     const c = m.lm.com, len = m.lift * 2.5;
-    t.arrow(c.clone().add(V(0, 0, -0.06)), V(0, -1, 0), len, COL.b, 'W 공기 중 무게');
-    t.arrow(c.clone().add(V(0, 0, 0.06)), V(0, 1, 0), len, COL.c, '부력 = W공기 − W물');
+    t.arrow(c.clone().add(V(0, 0, -0.06)), V(0, -1, 0), len, COL.b, 'W_air · 공기 중 무게');
+    t.arrow(c.clone().add(V(0, 0, 0.06)), V(0, 1, 0), len, COL.c, '부력 = W_air − W_sub');
   } },
   com: { view: 'top', draw(t, m) {
     const { tipL, tipR, com } = m.lm;
     t.tube([tipL, tipR], COL.c, t.R * 0.6); t.label(V(-0.6, 0, tipR.z), '최대 스팬 축', COL.c);
     t.dot(com, COL.b, t.R * 4); t.label(com, 'COM (예시 위치)', COL.b);
-    t.dim(V(0.25, 0, com.z), V(0.25, 0, tipR.z), 'd / L · 앞 −, 뒤 +', COL.a, m.lift * 0.6);
+    t.dim(V(0.25, 0, com.z), V(0.25, 0, tipR.z), 'Δx_COM · 앞 −, 뒤 +', COL.a, m.lift * 0.6);
+    t.dim(m.lm.snout, V(0, 0, com.z), 'x_COM', COL.b, m.lift * 1.6, 0.35);
   } },
   tailmass: { view: 'iso', draw(t, m) {
     const { tailBase: b, tailTip } = m.lm;
     m.tint(['tail'], HL);
     t.tube([V(-0.07, 0, b.z), V(0.07, 0, b.z)], COL.b); t.label(V(0.07, 0, b.z), '꼬리 기부', COL.b);
-    t.label(b.clone().lerp(tailTip, 0.5), '꼬리 질량 / 전체 질량', COL.c);
+    t.label(b.clone().lerp(tailTip, 0.5), 'm_tail / M', COL.c);
   } },
 
   radial: { mode: SK, view: 'top', draw(t, m) {
@@ -267,7 +269,7 @@ export const DRAW = {
   chains: { mode: SK, view: 'top', draw(t, m) {
     const r = midRadial(m);
     t.tube(r.pts.slice(0, 11), COL.c); t.tube(r.pts.slice(10), COL.b);
-    t.label(r.pts[5], '근위', COL.c); t.label(r.pts[16], '원위', COL.b);
+    t.label(r.pts[5], '근위 (2번째)', COL.c); t.label(r.pts[16], '원위 (분지 뒤 2번째)', COL.b);
   } },
   brace: { mode: SK, view: focus(DIR_TOP, m => midRadial(m).pts[10], 0.5), draw(t, m) {
     m.showBraces(true);
@@ -312,7 +314,7 @@ export const DRAW = {
     t.tube(bent, COL.a, t.R * 0.8);
     t.dot(a, COL.b, t.R * 4); t.label(a, '고정단', COL.b);
     t.arrow(up(bent[20], Y * 1.6), V(0, -1, 0), Y * 1.5, COL.b, 'F');
-    t.label(b.clone().lerp(bent[20], 0.5), 'Y_max = FL³ / 3EI');
+    t.label(b.clone().lerp(bent[20], 0.5), 'δ_max = F ℓ_r³ / 3EI');
   } },
   stiff: { view: 'iso', draw(t, m) {
     const sb = m.sp.sb;
@@ -336,7 +338,7 @@ export const DRAW = {
   pelvmus: { view: (m, s, v) => pelvicView(v ? DIR_TOP : DIR_BOTTOM)(m), draw(t, m, v) {
     m.tint(['pelvic'], HL);
     pelvicPro(t, m, 'propterygium');
-    t.label(m.lm.pelvic, v ? '등쪽: 거상근 · propterygium 전진근' : '배쪽: 하강근 · propterygium 하강근·후퇴근', COL.c);
+    t.label(m.lm.pelvic, v ? '등쪽: 거상근 · (전진근·후퇴근은 양면)' : '배쪽: 하강근 · propterygium 하강근 · (전진근·후퇴근은 양면)', COL.c);
   } },
   pelvarea: { view: 'bottom', draw(t, m) {
     m.paint(() => SOFT);
@@ -362,9 +364,9 @@ export const DRAW = {
   pcomp: { mode: SK, view: pelvicView(DIR_TOP), draw: (t, m) => pelvicPro(t, m, 'propterygium 조직') },
   tail: { view: m => ({ dir: DIR_TOP, at: V(0, 0, m.lm.tailTip.z / 2), dist: m.size * 1.55 }), draw(t, m, v) {
     const L = m.lm;
-    t.dim(L.tailBase, L.tailTip, '꼬리 길이');
+    t.dim(L.tailBase, L.tailTip, 'ℓ_tail · 꼬리 길이');
     if (v) t.dim(L.tipL, L.tipR, 'DW', COL.b);
-    else t.dim(L.snout, L.tailBase, 'BL', COL.b, m.lift * 1.5);
+    else t.dim(L.snout, L.tailBase, 'DL_tb', COL.b, m.lift * 1.5);
   } },
   cephalic: { view: 'top', draw(t, m) {
     const L = m.lm;
@@ -376,7 +378,7 @@ export const DRAW = {
       m.tint(['ceph'], HL);
       t.label(V(0.12, 0.04, -0.12), '두부엽', COL.c);
     }
-    t.dim(L.snout, L.discPost, 'DL', COL.a, m.lift, 0.3);
-    t.dim(L.finO, L.finI, '지느러미 기부', COL.b, m.lift, 0.7);
+    t.dim(L.snout, L.pelvicPost, 'DL_pel', COL.a, m.lift, 0.3);
+    t.dim(L.finO, L.finI, 'ℓ_fb', COL.b, m.lift, 0.7);
   } },
 };

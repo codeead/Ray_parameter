@@ -21,6 +21,8 @@ header h1 { margin: 0 auto 0 0; font-size: 17px; letter-spacing: -.01em; }
 header h1 small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); }
 .pdf { color: var(--aqua); font-size: 13px; text-decoration: none; }
 .pdf:hover { text-decoration: underline; }
+button.pdf { all: unset; cursor: pointer; color: var(--aqua); font-size: 13px; }
+button.pdf:hover { text-decoration: underline; }
 
 .seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: rgba(2, 20, 34, .7); }
 .seg.wrap { flex-wrap: wrap; border-radius: 14px; margin-top: 12px; }
@@ -100,6 +102,37 @@ cite { color: var(--muted); font-size: 12px; font-style: normal; }
 .fig .r { text-anchor: end; }
 .fig .big { fill: var(--sun); font-size: 14px; font-weight: 600; }
 #detail .figcap { margin-top: 6px; color: var(--muted); font-size: 12px; }
+
+/* 기호·단위·근거 */
+.sym, .symbig { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-style: normal; font-weight: 500; color: var(--sun); }
+.sym { padding: 0 5px; border-radius: 4px; background: rgba(255, 209, 102, .1); font-size: 11px; }
+.symbig { margin-left: 10px; font-size: 15px; }
+.badge.kind { color: var(--sun); border-color: rgba(255, 209, 102, .4); }
+.badge.basis { color: #8fd0ff; border-color: rgba(143, 208, 255, .45); }
+#detail .dim { color: var(--muted); font-size: 13px; }
+#detail .note { color: #c6e3ec; font-size: 13px; }
+.units { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; font-size: 13px; }
+.units dt { color: var(--muted); }
+.units dd { margin: 0; }
+.ev { display: grid; gap: 8px; }
+.ev > div { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255, 255, 255, .025); }
+.ev b { display: block; color: var(--foam); font-size: 13px; }
+.ev .loc { display: block; color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+.ev p { margin-top: 4px !important; font-size: 13px; }
+.verdict { margin-top: 10px; padding: 10px 12px; border-left: 3px solid var(--mint); border-radius: 0 8px 8px 0; background: rgba(127, 245, 208, .07); font-size: 13px; }
+.verdict p { margin: 4px 0 !important; }
+.verdict ul { margin: 4px 0; padding-left: 18px; color: #c6e3ec; font-size: 12.5px; }
+.verdict small { color: var(--muted); }
+
+dialog { width: min(920px, 94vw); max-height: 86vh; padding: 20px 24px 28px; border: 1px solid var(--line); border-radius: 14px; background: #04263f; color: var(--ink); }
+dialog::backdrop { background: rgba(1, 12, 22, .7); }
+dialog h2 { margin: 0 0 4px; }
+dialog h3 { margin: 18px 0 6px; font-size: 13px; color: var(--aqua); }
+dialog .close { all: unset; cursor: pointer; float: right; padding: 2px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 12px; }
+dialog table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+dialog th, dialog td { padding: 5px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+dialog th { color: var(--aqua); font-weight: 600; }
+dialog td.s { font-family: ui-monospace, Menlo, monospace; color: var(--sun); white-space: nowrap; }
 
 @media (max-width: 960px) {
   body { height: auto; }

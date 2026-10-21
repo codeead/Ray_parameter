@@ -3,12 +3,11 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
 import { buildModel, V } from './models.js';
 import { DRAW, tools, sectionSVG } from './viz.js';
-import { GROUPS, PARAMS, REFS, CONFLICTS, FIGS } from './data.js';
+import { PARAMS } from './data.js';
+import { NAMES, ALL, listHTML, detailHTML, symbolsHTML } from './panel.js';
 
 const $ = s => document.querySelector(s);
 const BY_ID = Object.fromEntries(PARAMS.map(p => [p.id, p]));
-const ALL = ['manta', 'standard'];
-const NAMES = { manta: '만타', standard: '표준 가오리' };
 const DIRS = { top: [0, 1, 1e-4], bottom: [0, -1, -1e-4], side: [1, 0.15, 0], front: [0, 0.3, -1], iso: [1, 0.9, -1] };
 const state = { model: 'manta', id: 'dw', v: 0, st: 0.5, skel: false };
 
@@ -112,42 +111,25 @@ function select(id) {
   history.replaceState(null, '', '#' + id);
   document.querySelectorAll('.item').forEach(b => b.classList.toggle('on', b.dataset.id === id));
   refresh();
+  $('#detail').scrollTop = 0;
 }
 function refresh() { draw(); renderDetail(); view(DRAW[state.id].view); }
 
 // ── 설명 패널
 function renderDetail() {
-  const p = BY_ID[state.id], d = DRAW[state.id], vr = p.variants?.[state.v];
-  const g = GROUPS.find(x => x[0] === p.g);
-  $('#detail').innerHTML = `
-    <p class="crumb">${p.g} ${g[1]}</p>
-    <h2>${p.name}</h2>${p.orig ? `<p class="orig">${p.orig}</p>` : ''}
-    <div class="badges">${(p.models ?? ALL).map(k => `<span class="badge">${NAMES[k]}</span>`).join('')}${(p.conflict ?? []).map(c => `<span class="badge warn">정의 차이 ${c}</span>`).join('')}</div>
-    <h3>정의 · 논문</h3><p>${p.def}</p>
-    ${vr ? `<div class="seg wrap">${p.variants.map((x, i) => `<button data-v="${i}" class="${i === state.v ? 'on' : ''}">${x.label}</button>`).join('')}</div>
-      <p class="vtext">${vr.text}${vr.src ? ` <cite>${vr.src}</cite>` : ''}</p>` : ''}
-    <h3>3D에서 보는 범위</h3><p>${p.show}</p>
-    ${d.mode === 'section' ? `<label class="slider">단면 위치 <output id="sto">${Math.round(state.st * 100)}% 반스팬</output>
-      <input id="st" type="range" min="0" max="0.95" step="0.01" value="${state.st}"></label><div id="svg">${sectionSVG(models[state.model], state.st, state.id)}</div>` : ''}
-    ${p.fig ? FIGS[p.fig] : ''}
-    ${p.why ? `<p class="why">${p.why}</p>` : ''}
-    <h3>출처</h3><ul class="refs">${p.src.map(k => `<li><b>${k}</b> ${REFS[k]}</li>`).join('')}</ul>
-    ${(p.conflict ?? []).map(c => `<h3>논문 간 정의 차이 ${c} · ${CONFLICTS[c].title}</h3><ul class="conf">${CONFLICTS[c].items.map(x => `<li>${x}</li>`).join('')}</ul>`).join('')}`;
+  const p = BY_ID[state.id];
+  $('#detail').innerHTML = detailHTML(p, DRAW[state.id], state, models[state.model]);
 }
 
 // ── 파라미터 목록 (정의 모아보기)
-$('#groups').innerHTML = GROUPS.map(([g, title]) => {
-  const items = PARAMS.filter(p => p.g === g);
-  return `<details open><summary><span class="gid">${g}</span>${title}<span class="cnt">${items.length}</span></summary>
-    ${items.map(p => `<button class="item" data-id="${p.id}"><span class="nm">${p.name}${p.models ? '<i class="mk">표준 가오리</i>' : ''}${p.conflict ? '<i class="mk warn">정의 차이</i>' : ''}</span><span class="df">${p.def}</span></button>`).join('')}
-  </details>`;
-}).join('');
+$('#groups').innerHTML = listHTML();
+$('#symbols-body').innerHTML = symbolsHTML();
 
 $('#q').addEventListener('input', e => {
   const q = e.target.value.trim().toLowerCase();
   document.querySelectorAll('.item').forEach(b => {
     const p = BY_ID[b.dataset.id];
-    b.hidden = !!q && !(p.name + p.orig + p.def).toLowerCase().includes(q);
+    b.hidden = !!q && !(p.name + p.orig + p.sym + p.def + (p.std ?? '')).toLowerCase().includes(q);
   });
   document.querySelectorAll('#groups details').forEach(d => (d.hidden = !d.querySelector('.item:not([hidden])')));
 });
@@ -160,6 +142,7 @@ document.addEventListener('click', e => {
   else if (b.dataset.model) { state.model = b.dataset.model; refresh(); }
   else if (b.dataset.v) { state.v = +b.dataset.v; refresh(); }
   else if (b.dataset.view) view(b.dataset.view);
+  else if (b.id === 'sym') $('#symbols').showModal();
   else if (b.id === 'skel') { state.skel = !state.skel; draw(); }
   else if (b.id === 'lbl') b.classList.toggle('on', !(labels.domElement.hidden = !labels.domElement.hidden));
 });
