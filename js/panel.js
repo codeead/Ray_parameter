@@ -15,7 +15,7 @@ const sym = p => (p.sym && p.sym !== '—' ? p.sym : '');
 export const listHTML = () => GROUPS.map(([g, title]) => {
   const items = PARAMS.filter(p => p.g === g);
   return `<details open><summary><span class="gid">${g}</span>${title}<span class="cnt">${items.length}</span></summary>
-    ${items.map(p => `<button class="item" data-id="${p.id}"><span class="nm">${p.name}${sym(p) ? `<i class="sym">${esc(sym(p))}</i>` : ''}${p.models ? '<i class="mk">표준 가오리</i>' : ''}${p.conflict ? '<i class="mk warn">정의 차이</i>' : ''}</span><span class="df">${p.std ?? p.def}</span></button>`).join('')}
+    ${items.map(p => `<button class="item" data-id="${p.id}"><span class="nm">${p.name}${sym(p) ? `<i class="sym" translate="no">${esc(sym(p))}</i>` : ''}${p.models ? '<i class="mk">표준 가오리</i>' : ''}${p.conflict ? '<i class="mk warn">정의 차이</i>' : ''}</span><span class="df">${p.std ?? p.def}</span></button>`).join('')}
   </details>`;
 }).join('');
 
@@ -29,7 +29,7 @@ const conflictHTML = c => {
 };
 
 const evidenceHTML = id => (EV[id] ? `<h3>근거 상세 · 원문 위치와 설명</h3><div class="ev">${EV[id].map(([paper, loc, text]) =>
-  `<div><b>${paper}</b><span class="loc">${loc}</span><p>${text}</p></div>`).join('')}</div>` : '');
+  `<div><b>${paper}</b><span class="loc" translate="no">${loc}</span><p>${text}</p></div>`).join('')}</div>` : '');
 
 // st = 단면 위치, model = 현재 3D 모델, v = 선택한 정의 번호
 export function detailHTML(p, d, { v, st }, model) {
@@ -43,11 +43,11 @@ export function detailHTML(p, d, { v, st }, model) {
   const symOrig = p.symOrig?.length ? p.symOrig.map(x => (x.src ? `${esc(x.sym)} <cite>(${x.src})</cite>` : esc(x.sym))).join(' · ') : '';
   return `
     <p class="crumb">${p.g} ${g[1]}</p>
-    <h2>${p.name}${sym(p) ? `<span class="symbig">${esc(sym(p))}</span>` : ''}</h2>${p.orig ? `<p class="orig">${p.orig}</p>` : ''}
+    <h2>${p.name}${sym(p) ? `<span class="symbig" translate="no">${esc(sym(p))}</span>` : ''}</h2>${p.orig ? `<p class="orig">${p.orig}</p>` : ''}
     <div class="badges">${badges}</div>
     <h3>${p.std ? '사이트 정의' : '정의 · 논문'}</h3><p>${p.std ?? p.def}</p>
     ${p.std ? `<h3>논문 정의 (원문)</h3><p class="dim">${p.def}</p>` : ''}
-    ${vr ? `<div class="seg wrap">${p.variants.map((x, i) => `<button data-v="${i}" class="${i === v ? 'on' : ''}">${x.label}</button>`).join('')}</div>
+    ${vr ? `<div class="seg wrap">${p.variants.map((x, i) => `<button data-v="${i}" class="${i === v ? 'on' : ''}" aria-pressed="${i === v}">${x.label}</button>`).join('')}</div>
       <p class="vtext">${vr.text}${vr.src ? ` <cite>${vr.src}</cite>` : ''}</p>` : ''}
     <h3>기호 · 단위</h3>
     <dl class="units">${row('원문 기호', symOrig)}${row(p.kind === 'cat' || p.kind === 'count' ? '표기' : '절대 단위', p.unitAbs)}${row('정규화 · 기준', p.unitNorm)}</dl>
@@ -63,7 +63,7 @@ export function detailHTML(p, d, { v, st }, model) {
 }
 
 export const symbolsHTML = () => `
-  <h2>기호표 · 단위 규칙</h2>
+  <h2 id="sym-title">기호표 · 단위 규칙</h2>
   <p class="dim">한 기호는 한 뜻만 갖습니다. A는 2장 유영 지표의 진폭에 쓰도록 비워 둡니다. 원문 기호는 따로 적습니다.</p>
   <h3>단위 표기: 네 종류</h3>
   <p>절대값은 몸 크기에 따라 커지고, 정규화값은 크기 효과를 지우는 대신 기준 길이를 무엇으로 잡느냐에 따라 달라집니다. 그래서 카드에는 두 칸을 따로 두고, 정규화값 옆에는 항상 기준 기호를 붙입니다.</p>
@@ -74,4 +74,4 @@ export const symbolsHTML = () => `
   <p>${Object.values(BASIS).join(' · ')}</p>
   <h3>기호표</h3>
   <table><thead><tr><th>기호</th><th>뜻</th><th>원문 기호</th><th>메모</th></tr></thead>
-  <tbody>${SYMBOLS.map(r => `<tr>${r.map((c, i) => `<td${i ? '' : ' class="s"'}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  <tbody>${SYMBOLS.map(r => `<tr>${r.map((c, i) => `<td${i ? '' : ' class="s" translate="no"'}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;

@@ -10,6 +10,8 @@ const $ = s => document.querySelector(s);
 const BY_ID = Object.fromEntries(PARAMS.map(p => [p.id, p]));
 const DIRS = { top: [0, 1, 1e-4], bottom: [0, -1, -1e-4], side: [1, 0.15, 0], front: [0, 0.3, -1], iso: [1, 0.9, -1] };
 const state = { model: 'manta', id: 'dw', v: 0, st: 0.5, skel: false };
+const calm = matchMedia('(prefers-reduced-motion: reduce)');
+let fly = null; // 카메라 이동 상태
 
 // ── 장면
 const box = $('#canvas');
@@ -25,6 +27,7 @@ const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 100);
 camera.position.set(2.5, 2.5, -2.5);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+controls.addEventListener('start', () => (fly = null)); // 사용자가 잡으면 카메라 이동을 즉시 멈춤
 scene.add(new THREE.HemisphereLight(0xc8f4ff, 0x06243a, 1.4));
 const sun = new THREE.DirectionalLight(0xffffff, 1.8);
 sun.position.set(2, 6, -3);
@@ -32,8 +35,16 @@ const under = new THREE.DirectionalLight(0x5fc8e8, 1.3);
 under.position.set(-1, -4, 1);
 const snow = new THREE.Points( // 바다 부유물
   new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(Array.from({ length: 1800 }, () => (Math.random() - 0.5) * 14), 3)),
-  new THREE.PointsMaterial({ color: 0x9fdcec, size: 0.02, transparent: true, opacity: 0.45, depthWrite: false }));
+  new THREE.PointsMaterial({ color: 0x9fdcec, size: 0.02, transparent: true, opacity: 0.45, depthWrite: false, map: dotTexture() }));
 scene.add(sun, under, snow);
+
+function dotTexture() { // 부유 입자를 네모 대신 부드러운 원으로
+  const c = Object.assign(document.createElement('canvas'), { width: 32, height: 32 }), g = c.getContext('2d');
+  const r = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+  r.addColorStop(0, '#fff'); r.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = r; g.fillRect(0, 0, 32, 32);
+  return new THREE.CanvasTexture(c);
+}
 
 const models = Object.fromEntries(ALL.map(k => [k, buildModel(k)]));
 Object.values(models).forEach(m => scene.add(m.group));
@@ -48,15 +59,14 @@ const resize = () => {
 resize();
 new ResizeObserver(resize).observe(box);
 
-let fly = null;
 renderer.setAnimationLoop(t => {
-  if (fly) {
-    const k = Math.min(1, (t - fly.t) / 700), e = 1 - (1 - k) ** 3;
+  if (fly) { // 화면 안에서 움직이는 이동이라 ease-in-out
+    const k = calm.matches ? 1 : Math.min(1, (t - fly.t) / 600), e = k < 0.5 ? 4 * k ** 3 : 1 - (-2 * k + 2) ** 3 / 2;
     camera.position.lerpVectors(fly.p0, fly.p1, e);
     controls.target.lerpVectors(fly.c0, fly.c1, e);
     if (k === 1) fly = null;
   }
-  snow.rotation.y = t * 0.00002;
+  if (!calm.matches) snow.rotation.y = t * 0.00002;
   controls.update();
   renderer.render(scene, camera);
   labels.render(scene, camera);
@@ -91,29 +101,40 @@ function draw() {
   $('#note').hidden = ok;
   if (!ok) $('#note').innerHTML = `<p>${p.why}</p><button data-model="${p.models[0]}">${NAMES[p.models[0]]} 모델로 보기</button>`;
   $('#caption').textContent = m.sp.label;
-  document.querySelectorAll('[data-model]').forEach(b => b.classList.toggle('on', b.dataset.model === state.model));
+  document.querySelectorAll('.seg [data-model]').forEach(b => {
+    b.classList.toggle('on', b.dataset.model === state.model);
+    b.setAttribute('aria-pressed', b.dataset.model === state.model);
+  });
   $('#skel').classList.toggle('on', state.skel);
+  $('#skel').setAttribute('aria-pressed', state.skel);
 }
 
 let toastTimer;
 function toast(msg) {
   $('#toast').textContent = msg;
-  $('#toast').hidden = false;
+  $('#toast').classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => ($('#toast').hidden = true), 3500);
+  toastTimer = setTimeout(() => $('#toast').classList.remove('show'), 3500);
 }
 
-function select(id) {
+function select(id, v = 0) {
   const p = BY_ID[id];
   if (!p) return;
-  Object.assign(state, { id, v: 0, skel: DRAW[id].mode === 'skeleton' });
+  Object.assign(state, { id, v: p.variants?.[v] ? v : 0, skel: DRAW[id].mode === 'skeleton' });
   if (!avail(p)) { state.model = p.models[0]; toast(`${NAMES[state.model]} 모델로 전환했습니다`); }
-  history.replaceState(null, '', '#' + id);
   document.querySelectorAll('.item').forEach(b => b.classList.toggle('on', b.dataset.id === id));
+  const first = !$('#detail').childElementCount;
   refresh();
   $('#detail').scrollTop = 0;
+  // 내용 교체는 자주 일어나므로 위치 이동 없이 짧은 페이드만, 첫 로드는 생략
+  if (!first && !calm.matches) $('#detail').animate({ opacity: [0, 1] }, { duration: 160, easing: 'cubic-bezier(.23, 1, .32, 1)' });
+  if (matchMedia('(min-width: 961px)').matches) document.querySelector('.item.on')?.scrollIntoView({ block: 'nearest' }); // 목록이 자체 스크롤일 때만
 }
-function refresh() { draw(); renderDetail(); view(DRAW[state.id].view); }
+function refresh() {
+  draw(); renderDetail(); view(DRAW[state.id].view);
+  // 공유 링크가 같은 화면을 열도록: #파라미터[/모델][/v정의번호]
+  history.replaceState(null, '', '#' + [state.id, state.model !== 'manta' && state.model, state.v && 'v' + state.v].filter(Boolean).join('/'));
+}
 
 // ── 설명 패널
 function renderDetail() {
@@ -144,7 +165,11 @@ document.addEventListener('click', e => {
   else if (b.dataset.view) view(b.dataset.view);
   else if (b.id === 'sym') $('#symbols').showModal();
   else if (b.id === 'skel') { state.skel = !state.skel; draw(); }
-  else if (b.id === 'lbl') b.classList.toggle('on', !(labels.domElement.hidden = !labels.domElement.hidden));
+  else if (b.id === 'lbl') {
+    const on = !(labels.domElement.hidden = !labels.domElement.hidden);
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on);
+  }
 });
 $('#detail').addEventListener('input', e => {
   if (e.target.id !== 'st') return;
@@ -153,6 +178,12 @@ $('#detail').addEventListener('input', e => {
   $('#svg').innerHTML = sectionSVG(models[state.model], state.st, state.id);
   draw();
 });
+$('#symbols').addEventListener('click', e => { // 대화상자 바깥(배경) 클릭으로 닫기
+  const r = e.currentTarget.getBoundingClientRect();
+  if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.currentTarget.close();
+});
 $('#detail').addEventListener('change', e => e.target.id === 'st' && view(DRAW[state.id].view));
 
-select(location.hash.slice(1) in BY_ID ? location.hash.slice(1) : 'dw');
+const [hid, ...opt] = location.hash.slice(1).split('/');
+if (opt.includes('standard')) state.model = 'standard';
+select(hid in BY_ID ? hid : 'dw', +(opt.find(x => /^v\d+$/.test(x)) ?? 'v0').slice(1));
